@@ -1,0 +1,53 @@
+# Project Information
+project_name: "BERT_invitro_pretraining"
+model_name: "masking_invitro_physchem_init_pretrained"
+wandb_entity: "arslan_masood"
+
+# Directories
+model_weights_dir: "${env:MODEL_WEIGHTS_DIR}"
+data_dir: "${env:DATA_DIR}"
+metadata_dir: "${env:METADATA_DIR}"
+
+# Files
+train_file: "${data_dir}/train_set_invitro_1m_300k_ADME_filtered.pkl"
+valid_file: "${data_dir}/test_set_invitro_1m_300k_ADME_filtered.pkl"
+test_file: "${data_dir}/test_set_invitro_1m_300k_ADME_filtered.pkl"
+pos_weights: "${data_dir}/pos_weights.csv"
+
+# Model Parameters
+mode: "classification"
+alpha: 0.0
+beta: 0.0
+gamma: 0.0
+max_epochs: 50
+unfreeze_epoch: 210
+l2_lambda: 0.0
+embedding_size: 50
+num_physchem_properties: 200
+num_invivo_tasks: 0
+bert_output_dim: 768
+invitro_head_hidden_layer: 2048
+
+# Training Parameters
+optim: "AdamW"
+loss_type: "BCE"
+lr: 1e-05
+BERT_lr: 3e-5
+batch_size: 264
+seed: 42
+missing: "nan"
+compute_metric_after_n_epochs: 5
+return_trainer: true
+EarlyStopping: false
+
+# Hardware Configuration
+accelerator: "gpu"
+gpu: -1
+precision: 32
+distributed_backend: "dp"
+
+# Model Configuration
+max_seq_length: 128
+permute: false
+pretrained_model: true
+freeze_level: false
