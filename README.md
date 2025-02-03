@@ -11,9 +11,7 @@ This repository contains the code of ToxBERT, a pretrained BERT based model with
 - [Data Preparation](#data-preparation)
 - [Model Architecture](#model-architecture)
 - [Training the Model](#training-the-model)
-- [Reproducing Results](#reproducing-results)
-- [Making Predictions](#making-predictions)
-- [Results](#results)
+- [Pretrainig by using public data](#pretrainig-by-using-public-data)
 - [Citation](#citation)
 
 ## Installation
