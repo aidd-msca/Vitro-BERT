@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ToxBERT - Modeling DILI by pretraining BERT on invitro data
 
 This repository contains the code of ToxBERT, a pretrained BERT based model with the ability to use biological and chemical data during pretraining stage
@@ -145,3 +146,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 Muhammad Arslan Masood - arslan.asood@aalto.fi
+=======
+# ToxBERT
+This repository contains the code of MolBERT, a pretrained BERT based model with the ability to use biological and chemical data during pretraining stage
+
+![ToxBERT Architecture](ToxBERT.png)
+>>>>>>> fork/main
