@@ -128,6 +128,11 @@ python scripts/train.py --config config/default_config.yaml
 https://figshare.com/articles/dataset/Pretraining_data/28334303
 ```
 
+## Downstream data and ToxBERT Embeddings
+```bash
+https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518
+```
+
 ## Citation
 
 If you use this code in your research, please cite:

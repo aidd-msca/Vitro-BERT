@@ -134,83 +134,10 @@ export WANDB_API_KEY="your_wandb_key"  # Optional, for logging
 python scripts/train.py --config config/default_config.yaml
 ```
 
-## Reproducing Results by using public data
-
-To reproduce our results:
-
-1. Download the preprocessed dataset:
+## Pretraining by using public data
 ```bash
-# Add link to download dataset
-wget https://example.com/adme_dataset.zip
-unzip adme_dataset.zip -d data/
-```
-
-2. Use our exact configuration:
-```bash
-# Clone specific version
-git clone -b v1.0.0 https://github.com/yourusername/bert-invitro-adme.git
-
-# Use provided configuration
-cp configs/reproduction_config.yaml config/default_config.yaml
-```
-
-3. Train the model:
-```bash
-python scripts/train.py --config config/default_config.yaml
-```
-
-Expected Results:
-- ROC-AUC: 0.85 ± 0.02
-- PR-AUC: 0.82 ± 0.03
-- F1 Score: 0.79 ± 0.02
-
-## Making Predictions
-
-Here's how to use the trained model for predictions:
-
-```python
-from src.models import MolbertModel
-from src.utils.featurizer import SmilesIndexFeaturizer
-
-# Load model
-model = MolbertModel.load_from_checkpoint('path/to/checkpoint.ckpt')
-model.eval()
-
-# Prepare input
-featurizer = SmilesIndexFeaturizer(max_length=128)
-smiles = "CC1=CC=C(C=C1)C2=CC(=NN2C3=CC=C(C=C3)S(N)(=O)=O)C(F)(F)F"
-encoded = featurizer.encode(smiles)
-
-# Make prediction
-with torch.no_grad():
-    prediction = model.predict(encoded)
-```
-
-## Results
-
-Our model achieves the following performance on the test set:
-
-| Metric | Value |
-|--------|-------|
-| ROC-AUC | 0.85 |
-| PR-AUC | 0.82 |
-| F1 Score | 0.79 |
-
-Detailed results for individual ADME properties:
-[Include detailed results table]
-
-## Common Issues and Solutions
-
-1. CUDA Out of Memory
-```bash
-# Reduce batch size in config/default_config.yaml
-batch_size: 132  # Default: 264
-```
-
-2. Slow Training
-```bash
-# Increase number of workers
-num_workers: 24
+# Pretraining data can be downloaded from:
+https://figshare.com/articles/dataset/Pretraining_data/28334303
 ```
 
 ## Citation

@@ -8,3 +8,7 @@ transformers==3.5.1
 torch==1.4.0
 pubchempy
 openpyxl
+wandb
+pyarrow
+matplotlib
+iterative-stratification

@@ -1,0 +1,63 @@
+# directories
+project_name: "MLP_invivo_with_BERT"
+metadata_dir: "/scratch/cs/pml/AI_drug/ToxBERT/MLP_invivo_with_BERT_features"
+train_target_file: "/scratch/work/masooda1/ToxBERT/data/downstream_data/TG_train_{split_type}.csv"
+test_target_file: "/scratch/work/masooda1/ToxBERT/data/downstream_data/TG_test_{split_type}.csv"
+train_BERT_features: "/scratch/work/masooda1/ToxBERT/data/downstream_data/invivo_embeddings/invivo_train_{split_type}_epoch_{epoch}_step_{step}.csv"
+test_BERT_features: "/scratch/work/masooda1/ToxBERT/data/downstream_data/invivo_embeddings/invivo_test_{split_type}_epoch_{epoch}_step_{step}.csv"
+model_weights_dir: "/scratch/cs/pml/AI_drug/ToxBERT/MLP_invivo_with_BERT_features/weights/"
+pos_weights: "/scratch/work/masooda1/ToxBERT/data/downstream_data/TG_data_pos_neg_ratio.csv"
+
+# External validation
+external_val_labels: "/scratch/work/masooda1/ToxBERT/data/downstream_data/DrugMatrix_binary_labels.csv"
+external_val_features: "/scratch/work/masooda1/ToxBERT/data/downstream_data/invivo_embeddings/DrugMatrixinvivo_train_complete_epoch_{epoch}_step_{step}.csv"
+
+split_type: "Split_RandomPick"
+# architecture
+input_dim: 768
+hidden_dim: 128
+depth: 1
+BatchNorm1d: true
+use_skip_connection: true
+
+# training
+optim: "Adam"
+lr_schedulers: "CosineAnnealingLR"
+lr: 0.001
+max_epochs: 410
+compute_metric_after_n_epochs: 1
+batch_size: 64
+EarlyStopping: false
+search_method: "grid_search"
+l2_lambda: 0
+optm_l2_lambda: 0
+
+# loss
+missing: "nan"
+beta: 0
+loss_type: "Focal_loss"
+
+# hardware
+gpus: null
+accelerator: "gpu"
+precision: 32
+num_workers: 4
+
+# experiment
+seed: 42
+save_top_k: 1
+save_model: false
+distributed_backend: "ddp"
+fast_dev_run: false
+num_sanity_val_steps: 2
+pretrained_crash_model: null
+feature_epoch: 0
+
+feature_step: 0
+external_val: true
+# hyperparameter search
+hp_search:
+  optm_l2_lambda: [0.01]
+  dropout_p: [0.5]
+  alpha: [0.0]
+  gamma: [1.0]

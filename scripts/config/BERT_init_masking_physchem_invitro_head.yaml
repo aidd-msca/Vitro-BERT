@@ -1,0 +1,53 @@
+# Project settings
+project_name: "BERT_pretraining_masking_physchem_invitro"
+model_name: "BERT_init_masking_physchem_invitro_head_single_gpu"
+
+# Paths
+model_weights_dir: "/scratch/cs/pml/AI_drug/ToxBERT/ADME_masking_invitro_physchem_init_pretrained_single_gpu/"
+pretrained_model_path: "/scratch/work/masooda1/ToxBERT/molbert_100epochs/checkpoints/last.ckpt"
+data_dir: "/scratch/work/masooda1/ToxBERT/data/pretraining_data/"
+invitro_pos_weights: "/projects/home/mmasood1/arslan_data_repository/invitro/invitro_1m/25_04_2024/pos_weights.csv"
+invivo_pos_weights: "/projects/home/mmasood1/arslan_data_repository/Mix_clinical_pre_clinical/18_01_2023/Filtered_data_for_BERT/BERT_filtered_preclinical_clinical_pos_weight.csv"
+
+# Data files
+invitro_train: "Chembl20_filtered_for_MolBERT_train.pkl"
+invitro_val: "Chembl20_filtered_for_MolBERT_val.pkl"
+invitro_test: "Chembl20_filtered_for_MolBERT_val.pkl"
+
+# Training parameters
+max_epochs: 150
+l2_lambda: 0.0
+embedding_size: 50
+max_seq_length: 128
+bert_output_dim: 768
+optim: "AdamW"
+learning_rate: 0.00003 #0.00012
+seed: 42
+compute_metric_after_n_epochs: 1
+num_workers: 8
+early_stopping: false
+pretrained_crash_model: null
+
+# Model parameters
+mode: "classification"
+loss_type: "BCE"
+missing: "nan"
+alpha: 0.0
+beta: 0.0
+gamma: 0.0
+pretrained_model: true
+freeze_level: false
+
+# Invitro settings
+invitro_batch_size: 32
+invitro_head_hidden_layer: 2048
+
+# Compute settings
+accelerator: "gpu"
+precision: 32
+distributed_backend: "ddp"
+gpus: -1
+
+# Fast dev run settings
+fast_dev_run: false
+save_top_k: -1

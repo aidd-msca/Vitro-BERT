@@ -10,7 +10,7 @@ import torch
 import pandas as pd
 from pytorch_lightning import seed_everything
 
-from src.datasets.dataloading import MolbertDataLoader
+from datasets.data_utils import MolbertDataLoader
 from src.datasets.smiles import BertSmilesDataset
 from src.utils.featurizer.molfeaturizer import SmilesIndexFeaturizer
 from models.bert import MolbertModel
