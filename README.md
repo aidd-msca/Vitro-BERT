@@ -48,7 +48,10 @@ The model requires two types of data:
 2. Fine-tuning data: Preclinical and Clinical data with binary labels
 
 ### filtering
-This step is performed to remove all molecules with length > 128
+This step is performed to 
+ remove all molecules with length > 128
+ remove metals and salt
+ split 
 
 ### Data Format
 The input data should be in pickle (.pkl) format with the following structure:
