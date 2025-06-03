@@ -53,11 +53,12 @@ Download downstream and pretrianing data from
 https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518
 ```
 
-### filtering
+### Data-preprocessing
 This step is performed to 
- remove all molecules with length > 128
- remove metals and salt
- split 
+- Normalzied SMILES
+- remove all molecules with length > 128
+- remove metals and salt
+ 
 
 ### Data Format
 The input data should be in pickle (.pkl) format with the following structure:
