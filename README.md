@@ -47,6 +47,9 @@ The model requires two types of data:
 1. Pretraining data: In-vitro data with binary labels
 2. Fine-tuning data: Preclinical and Clinical data with binary labels
 
+### filtering
+This step is performed to remove all molecules with length > 128
+
 ### Data Format
 The input data should be in pickle (.pkl) format with the following structure:
 ```python
