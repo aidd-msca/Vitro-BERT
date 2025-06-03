@@ -50,7 +50,7 @@ The model requires two types of data:
 2. Fine-tuning data: Preclinical and Clinical data with binary labels
 
 ### Public data
-Download downstream and pretrianing data from [here](https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518) and place in the data/ directory
+Download downstream and pretrianing data from [here](https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518) and place in the `data/` directory
 
 ### Data Format
 The input data should be in pickle (.pkl) format with the following structure:
