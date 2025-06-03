@@ -52,7 +52,7 @@ Download downstream and pretrianing data from
 ```bash
 https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518
 ```
-
+and place in the data/ directory
 ### Data Format
 The input data should be in pickle (.pkl) format with the following structure:
 ```python
