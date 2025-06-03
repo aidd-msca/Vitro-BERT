@@ -47,6 +47,12 @@ The model requires two types of data:
 1. Pretraining data: In-vitro data with binary labels
 2. Fine-tuning data: Preclinical and Clinical data with binary labels
 
+## Public data
+Download downstream and pretrianing data from 
+```bash
+https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518
+```
+
 ### filtering
 This step is performed to 
  remove all molecules with length > 128
