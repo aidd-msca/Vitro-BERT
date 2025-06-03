@@ -3,6 +3,18 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+import rdkit
+print(rdkit.__version__)
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.info')
+
+from rdkit import Chem
+from rdkit.Chem.MolStandardize import rdMolStandardize
+from rdkit.Chem.SaltRemover import SaltRemover
+from multiprocessing import Pool
+from tqdm import tqdm
+
+
 ########################################################
 # get_stratified_folds
 #####################################################
@@ -52,3 +64,74 @@ class dataloader_for_numpy(Dataset):
 
     def __len__(self):
         return self.n_samples
+    
+
+########################################################
+# standardize_smiles
+########################################################
+def standardize_smiles(smiles: str, remover=SaltRemover()) -> str:
+    """
+    Standardize a SMILES string using RDKit's MolStandardize.
+    
+    Args:
+        smiles (str): Input SMILES string
+        remover (SaltRemover): RDKit SaltRemover instance
+        
+    Returns:
+        str: Standardized SMILES string or np.nan if standardization fails
+    """
+    config = {
+        "StandardizeSmiles": True,
+        "FragmentParent": False,
+        "SaltRemover": True,
+        "isomericSmiles": False,
+        "kekuleSmiles": True,
+        "canonical": True
+    }
+    
+    try:
+        if config["StandardizeSmiles"]:
+            smiles = rdMolStandardize.StandardizeSmiles(smiles)
+
+        mol = Chem.MolFromSmiles(smiles)
+        
+        if config["SaltRemover"]:
+            mol = remover.StripMol(mol, dontRemoveEverything=False)
+
+        if config["FragmentParent"]:
+            mol = rdMolStandardize.FragmentParent(mol)
+
+        if config["kekuleSmiles"]:
+            Chem.Kekulize(mol, clearAromaticFlags=True)
+            
+        normalized_smiles = Chem.MolToSmiles(
+            mol,
+            isomericSmiles=config["isomericSmiles"],
+            kekuleSmiles=config["kekuleSmiles"],
+            canonical=config["canonical"],
+            allHsExplicit=False
+        )
+        
+        return normalized_smiles if normalized_smiles else np.nan
+        
+    except:
+        return np.nan
+
+def normalize_smiles_parallel(smiles_list: list) -> list:
+    """
+    Process a list of SMILES strings in parallel using multiprocessing.
+    
+    Args:
+        smiles_list (list): List of SMILES strings to normalize
+        
+    Returns:
+        list: List of normalized SMILES strings
+    """
+    with Pool() as pool:
+        results = []
+        with tqdm(total=len(smiles_list), ncols=80, desc="Processing") as pbar:
+            for normalized_smiles in pool.imap(standardize_smiles, smiles_list):
+                results.append(normalized_smiles)
+                pbar.update(1)
+    return results
+

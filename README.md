@@ -72,9 +72,11 @@ This step is performed to
 
 ```bash
 python scripts/preprocess_invitro_data.py \
-    --input_path /scratch/work/masooda1/ToxBERT_github/data/pretraining_data/chembl20.parquet \
-    --output_path /scratch/work/masooda1/ToxBERT_github/data/pretraining_data/chembl20_selected_assays_with_normalzied_smiles.parquet \
-    --smiles_column smiles
+    --input_path /path/to/input/chembl20.parquet \
+    --output_path /path/to/output/ToxBERT_github/data/pretraining_data/chembl20_selected_assays_with_normalzied_smiles.parquet \
+    --smiles_column smiles \
+    --save_plots \
+    --plot_path /path/to/output/my_distribution_plots.png
 ```
 
 ### Example Data Preparation

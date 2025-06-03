@@ -1,93 +1,15 @@
-import pandas as pd
-import math
-from rdkit import Chem
-from rdkit.Chem import Draw
-from rdkit.Chem.Draw import IPythonConsole
-from rdkit.Chem.MolStandardize import rdMolStandardize
-#IPythonConsole.drawOptions.comicMode=True
-from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.info')
-import rdkit
-from rdkit.Chem.SaltRemover import SaltRemover
-print(rdkit.__version__)
-import numpy as np
+import os
+import sys
+from pathlib import Path
 
-from multiprocessing import Pool
-from tqdm import tqdm
+# Get project root from environment variable or use default
+PROJECT_ROOT = os.getenv('TOXBERT_ROOT', str(Path(__file__).parent.parent))
+sys.path.append(PROJECT_ROOT)
+
+import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
-import os
-from pathlib import Path
-import tarfile
-import gzip
-import shutil
-from typing import Union
-
-def standardize_smiles(smiles: str, remover=SaltRemover()) -> str:
-    """
-    Standardize a SMILES string using RDKit's MolStandardize.
-    
-    Args:
-        smiles (str): Input SMILES string
-        remover (SaltRemover): RDKit SaltRemover instance
-        
-    Returns:
-        str: Standardized SMILES string or np.nan if standardization fails
-    """
-    config = {
-        "StandardizeSmiles": True,
-        "FragmentParent": False,
-        "SaltRemover": True,
-        "isomericSmiles": False,
-        "kekuleSmiles": True,
-        "canonical": True
-    }
-    
-    try:
-        if config["StandardizeSmiles"]:
-            smiles = rdMolStandardize.StandardizeSmiles(smiles)
-
-        mol = Chem.MolFromSmiles(smiles)
-        
-        if config["SaltRemover"]:
-            mol = remover.StripMol(mol, dontRemoveEverything=False)
-
-        if config["FragmentParent"]:
-            mol = rdMolStandardize.FragmentParent(mol)
-
-        if config["kekuleSmiles"]:
-            Chem.Kekulize(mol, clearAromaticFlags=True)
-            
-        normalized_smiles = Chem.MolToSmiles(
-            mol,
-            isomericSmiles=config["isomericSmiles"],
-            kekuleSmiles=config["kekuleSmiles"],
-            canonical=config["canonical"],
-            allHsExplicit=False
-        )
-        
-        return normalized_smiles if normalized_smiles else np.nan
-        
-    except:
-        return np.nan
-
-def normalize_smiles_parallel(smiles_list: list) -> list:
-    """
-    Process a list of SMILES strings in parallel using multiprocessing.
-    
-    Args:
-        smiles_list (list): List of SMILES strings to normalize
-        
-    Returns:
-        list: List of normalized SMILES strings
-    """
-    with Pool() as pool:
-        results = []
-        with tqdm(total=len(smiles_list), ncols=80, desc="Processing") as pbar:
-            for normalized_smiles in pool.imap(standardize_smiles, smiles_list):
-                results.append(normalized_smiles)
-                pbar.update(1)
-    return results
+from src.datasets.data_utils import normalize_smiles_parallel
 
 def filter_assays(df: pd.DataFrame, min_samples: int = 10) -> pd.DataFrame:
     """
@@ -230,6 +152,13 @@ def parse_arguments():
         help='Separator for CSV files (default: ,)'
     )
     
+    parser.add_argument(
+        '--plot_path',
+        type=str,
+        default=None,
+        help='Path to save the distribution plots (default: same directory as output file)'
+    )
+    
     return parser.parse_args()
 
 def main():
@@ -256,6 +185,7 @@ def main():
     
     # Rename SMILES column to standard name for processing
     chembl20 = chembl20.rename(columns={args.smiles_column: 'smiles'})
+    chembl20 = chembl20.head(100)
     
     # Normalize SMILES
     print(f"Original unique SMILES: {chembl20.smiles.nunique()}")
@@ -280,7 +210,14 @@ def main():
     # Create and optionally save visualizations
     plot_distributions(filtered_df, pos_counts_assays, neg_counts_assays, valid_assays)
     if args.save_plots:
-        plot_path = output_dir / "distribution_plots.png"
+        # Determine plot save location
+        if args.plot_path:
+            plot_path = Path(args.plot_path)
+            # Create directory if it doesn't exist
+            plot_path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            plot_path = output_dir / "distribution_plots.png"
+        
         plt.savefig(plot_path)
         print(f"Saved distribution plots to {plot_path}")
     
