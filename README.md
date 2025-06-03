@@ -40,6 +40,8 @@ source activate ToxBERT
 pip install -e . 
 ```
 
+4. Download and store pretrianed MolBERT model from [here](https://ndownloader.figshare.com/files/25611290)
+
 ## Data Preparation
 
 The model requires two types of data:

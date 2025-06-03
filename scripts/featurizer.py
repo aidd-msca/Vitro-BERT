@@ -1,7 +1,7 @@
 import os
 import sys
 # Add the source directory to Python path
-sys.path.append('/scratch/work/masooda1/ToxBERT/src')
+#sys.path.append('/scratch/work/masooda1/ToxBERT/src')
 import logging
 from typing import Tuple, Sequence, Any, Dict, Union, Optional
 import numpy as np
@@ -94,7 +94,7 @@ class MolBertFeaturizer:
 def main():
 
     # Load model configuration
-    path_to_checkpoint = '/scratch/work/masooda1/ToxBERT/molbert_100epochs/checkpoints/last.ckpt'
+    path_to_checkpoint = '/scratch/work/masooda1/ToxBERT/MolBERT_checkpoints/molbert_100epochs/checkpoints/last.ckpt'
     model_dir = os.path.dirname(os.path.dirname(path_to_checkpoint))
     hparams_path = os.path.join(model_dir, 'hparams.yaml')
     

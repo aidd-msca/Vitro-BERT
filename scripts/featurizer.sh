@@ -6,6 +6,8 @@
 #SBATCH --array=0     # Modified: 6 fractions × 1 seed × 3 splits = 18 jobs
 #SBATCH --output=/scratch/work/masooda1/ToxBERT/output/featurizer.out
 
+### Activate your env ###
+### you might need to change as per your system ###
 VENV_PATH="/scratch/work/masooda1/.conda_envs/ToxBERT"
 
 module load mamba
@@ -16,6 +18,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+### Run the script ###
 echo 'Running training script...'
 srun python /scratch/work/masooda1/ToxBERT/scripts/featurizer.py
 
