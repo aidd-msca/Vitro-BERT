@@ -112,30 +112,18 @@ The pipeline will generate the following files:
 - `split_ratio_Random.csv`: Statistics about the data split
 - `distribution_plots.png`: Distribution plots of the data
 
-### Example Data Preparation
-```python
-import pandas as pd
-
-# Load your data
-data = pd.read_csv('your_data.csv')
-
-# Process SMILES and properties
-processed_data = {
-    'SMILES': data['smiles'].values,
-    'property1': data['prop1'].values.astype(int),
-    'property2': data['prop2'].values.astype(int)
-}
-
-# Save as pickle
-pd.to_pickle(processed_data, 'processed_data.pkl')
-```
-
+### Data directory Structure
 Place your prepared data files in the `data/` directory:
 ```
 data/
-├── train_set_invitro_1m_300k_ADME_filtered.pkl
-├── test_set_invitro_1m_300k_ADME_filtered.pkl
-└── pos_weights.csv
+├── rawdata
+    ├── TG_GATES_SMILES.csv
+    ├── chembl20.parquet
+├── pretraining_data
+    ├── invitro_train.pkl
+    ├── invitro_val.pkl
+    ├── invitro_pos_weight_distribution.csv
+└── downstream_data
 ```
 
 ## Model Architecture
