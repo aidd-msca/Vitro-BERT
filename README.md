@@ -66,10 +66,9 @@ The input data should be with the following structure:
 
 ### Data-preprocessing of pretraining data
 This step is performed to 
-- Normalize SMILES
-- Remove all molecules with length > 128
-- Remove metals and salt
-- Remove downstream molecules from pretraining data
+- Filter assays and mlecules
+- Filter incompatible molecules (metals, salt and >128)
+- Split data into training and validation 
 
 ```bash
 # Run the complete preprocessing pipeline
