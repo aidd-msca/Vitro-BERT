@@ -76,9 +76,9 @@ sbatch scripts/preprocess_invitro_data.sh \
     /path/to/data \
     /path/to/conda/env \
     /path/to/pretrained/MolBERT/weights
-
-# Or run individual scripts:
-
+```
+#### Or run individual scripts:
+```bash
 # 1. Normalize SMILES, filter assays and remove downstream molecules
 python scripts/preprocess_invitro_data.py \
     --invitro_input_path /path/to/input/chembl20.parquet \
