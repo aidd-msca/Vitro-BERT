@@ -143,25 +143,13 @@ Architecture details:
 
 ## Training the Model
 
-1. Configure your training parameters in `config/default_config.yaml`:
-```yaml
-project_name: "BERT_invitro_pretraining"
-model_name: "with_masking_invitro_physchem_heads"
-max_epochs: 50
-batch_size: 264
-lr: 1e-05
-```
-
-2. Set up environment variables:
+Use the following script to pretrain ToxBERT by using invitro data
 ```bash
-export MODEL_WEIGHTS_DIR="/path/to/weights"
-export DATA_DIR="/path/to/data"
-export WANDB_API_KEY="your_wandb_key"  # Optional, for logging
-```
-
-3. Start training:
-```bash
-python scripts/train.py --config config/default_config.yaml
+sbatch scripts/BERT_invitro_ADME_pretraining.sh \
+    /path/to/invitro_data \
+    /path/to/conda/env \
+    /scripts/config/BERT_init_masking_physchem_invitro_head.yaml \
+    /molbert_100epochs
 ```
 
 ## Pretraining by using public data

@@ -250,7 +250,6 @@ def main():
     
     # Rename SMILES column to standard name for processing
     invitro_data = invitro_data.rename(columns={args.invitro_smiles_column: 'smiles'})
-    invitro_data = invitro_data.head(1000)
     # Normalize SMILES
     print(f"Original unique SMILES: {invitro_data.smiles.nunique()}")
     normalized_smiles_list = normalize_smiles_parallel(invitro_data.smiles.tolist())
