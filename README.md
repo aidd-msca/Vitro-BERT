@@ -54,33 +54,64 @@ Download downstream and pretrianing data from [here](https://figshare.com/articl
 
 
 ### Data Format
-The input data should be in pickle (.pkl) format with the following structure:
+The input data should be with the following structure:
 ```python
 {
     'SMILES': [...],  # List of SMILES strings
-    'property1': [...],  # Binary labels (0 or 1)
-    'property2': [...],
+    'target1': [...],  # Binary labels (0 or 1)
+    'target2': [...],
     # ... additional properties
 }
 ```
 
-### Data-preprocessing
+### Data-preprocessing of pretraining data
 This step is performed to 
 - Normalize SMILES
 - Remove all molecules with length > 128
 - Remove metals and salt
+- Remove downstream molecules from pretraining data
 
 ```bash
+# Run the complete preprocessing pipeline
+sbatch scripts/preprocess_invitro_data.sh \
+    /path/to/data \
+    /path/to/conda/env \
+    /path/to/pretrained/weights
+
+# Or run individual scripts:
+
+# 1. Normalize SMILES, filter assays and remove downstream molecules
 python scripts/preprocess_invitro_data.py \
     --invitro_input_path /path/to/input/chembl20.parquet \
-    --invivo_input_path /path/to/input/rawdata/Animal_GAN_TGGATES_SMILES.xlsx \
-    --output_path /path/to/output/ToxBERT_github/data/pretraining_data/ \
+    --invivo_input_path /path/to/input/TG_GATES_SMILES.csv\
+    --output_path /path/to/output/pretraining_data/invitro_selected_assays.parquet \
     --invitro_smiles_column smiles \
     --invivo_smiles_column SMILES \
     --min_pos_neg_per_assay 10 \
     --save_plots \
-    --plot_path /path/to/output/my_distribution_plots.png
+    --plot_path /path/to/output/pretraining_data/distribution_plots.png
+
+# 2. Filter metals, salts, and molecules > 128, and compute MolBERT features (Baseline)
+python scripts/featurizer.py \
+    --input_path /path/to/output/pretraining_data/invitro_selected_assays.parquet \
+    --output_dir /path/to/output/pretraining_data \
+    --pretrained_MolBERT_weights /path/to/pretrained/weights
+
+# 3. Split invitro data into train and validation sets
+python scripts/split_data.py \
+    --input_path /path/to/output/pretraining_data/invitro_filtered.pkl \
+    --output_dir /path/to/output/pretraining_data \
+    --split_type Random \
+    --test_size 0.05
 ```
+
+The pipeline will generate the following files:
+- `invitro_selected_assays.parquet`: Preprocessed invitro data
+- `invitro_filtered.pkl`: Filtered data with MolBERT features
+- `invitro_train.pkl`: Training set
+- `invitro_val.pkl`: Validation set
+- `split_ratio_Random.csv`: Statistics about the data split
+- `distribution_plots.png`: Distribution plots of the data
 
 ### Example Data Preparation
 ```python

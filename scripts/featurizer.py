@@ -1,12 +1,21 @@
 import os
 import sys
-# Add the source directory to Python path
-#sys.path.append('/scratch/work/masooda1/ToxBERT/src')
+from pathlib import Path
+
+# Get project root from environment variable or use default
+PROJECT_ROOT = os.getenv('TOXBERT_ROOT', str(Path(__file__).parent.parent))
+sys.path.append(PROJECT_ROOT)
+
+# Add src directory to path
+SRC_PATH = os.path.join(PROJECT_ROOT, 'src')
+sys.path.append(SRC_PATH)
+
 import logging
 from typing import Tuple, Sequence, Any, Dict, Union, Optional
 import numpy as np
 import pandas as pd
 import yaml
+import argparse
 from tqdm import tqdm
 import torch
 from molbert.utils.featurizer.molfeaturizer import SmilesIndexFeaturizer
@@ -91,16 +100,57 @@ class MolBertFeaturizer:
         input_ids = input_ids[:, :max_idx]
         return input_ids
 
-def main():
+def parse_arguments():
+    """
+    Parse command line arguments.
+    
+    Returns:
+        argparse.Namespace: Parsed command line arguments
+    """
+    parser = argparse.ArgumentParser(description='Generate MolBERT features for SMILES data')
+    
+    parser.add_argument(
+        '--input_path',
+        type=str,
+        required=True,
+        help='Path to input parquet file containing SMILES data'
+    )
+    
+    parser.add_argument(
+        '--output_dir',
+        type=str,
+        required=True,
+        help='Directory to save output files'
+    )
+    
+    parser.add_argument(
+        '--pretrained_MolBERT_weights',
+        type=str,
+        required=True,
+        help='Path to pretrained MolBERT model weights'
+    )
+    
+    return parser.parse_args()
 
+def main():
+    # Parse command line arguments
+    args = parse_arguments()
+    
     # Load model configuration
-    path_to_checkpoint = '/scratch/work/masooda1/ToxBERT/MolBERT_checkpoints/molbert_100epochs/checkpoints/last.ckpt'
+    path_to_checkpoint = args.pretrained_MolBERT_weights
     model_dir = os.path.dirname(os.path.dirname(path_to_checkpoint))
     hparams_path = os.path.join(model_dir, 'hparams.yaml')
     
     with open(hparams_path) as yaml_file:
         config_dict = yaml.load(yaml_file, Loader=yaml.FullLoader)
+
+    # Update config_dict with new parameters
     config_dict["pretrained_model_path"] = path_to_checkpoint
+    config_dict["bert_output_dim"] = 768
+    config_dict["num_invitro_tasks"] = 0
+    config_dict["num_invivo_tasks"] = 0
+    config_dict["invitro_head_hidden_layer"] = 2048
+    config_dict["invivo_head_hidden_layer"] = 2048
 
     # Initialize and load model
     model = SmilesMolbertModel(config_dict)
@@ -117,7 +167,7 @@ def main():
     f = MolBertFeaturizer(model=model, featurizer=featurizer, device=device)
 
     # Load data
-    invitro_data = pd.read_parquet("/scratch/work/masooda1/ToxBERT/data/pretraining_data/chembl20_selected_assays_with_normalzied_smiles.parquet")
+    invitro_data = pd.read_parquet(args.input_path)
     smiles_list = invitro_data.Normalized_SMILES.tolist()
 
     # Process in batches
@@ -127,29 +177,31 @@ def main():
 
     features_all, masks_all = [], []
     for batch_smiles in tqdm(batches):
-        features, masks = f.transform(batch_smiles)  # Now capturing both features and masks
+        features, masks = f.transform(batch_smiles)
         torch.cuda.empty_cache()
-        features_all.append(features)  # Store features for each batch
+        features_all.append(features)
         masks_all.extend(masks.tolist())
 
     # Convert features list to numpy array and filter using masks
-    features_all = np.vstack(features_all)  # Combine all features into one array
-    filtered_features = features_all[masks_all]  # Filter features using masks
+    features_all = np.vstack(features_all)
+    filtered_features = features_all[masks_all]
 
     # Filter original data
     filtered_invitro_data = invitro_data[masks_all].reset_index(drop=True)
-    filtered_invitro_data = filtered_invitro_data.drop(["smiles"], axis = 1)
-    filtered_invitro_data = filtered_invitro_data.rename(columns = {"Normalized_SMILES": "SMILES"})
+    filtered_invitro_data = filtered_invitro_data.drop(["smiles"], axis=1)
+    filtered_invitro_data = filtered_invitro_data.rename(columns={"Normalized_SMILES": "SMILES"})
 
     # Create features dataframe with filtered SMILES
     feature_columns = [f'feature_{i}' for i in range(filtered_features.shape[1])]
     features_df = pd.DataFrame(filtered_features, columns=feature_columns)
-    features_df['Normalized_SMILES'] = filtered_invitro_data['Normalized_SMILES']
+    features_df['Normalized_SMILES'] = filtered_invitro_data['SMILES']
+
+    # Create output directory if it doesn't exist
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # Save both dataframes separately
-    data_dir = "/scratch/work/masooda1/ToxBERT/data/pretraining_data/"
-    filtered_invitro_data.to_pickle(data_dir + 'Chembl20_filtered_for_MolBERT.pkl')
-    features_df.to_pickle(data_dir + 'Chembl20_MolBERT_features.pkl')
+    filtered_invitro_data.to_pickle(os.path.join(args.output_dir, 'Chembl20_filtered_for_MolBERT.pkl'))
+    features_df.to_pickle(os.path.join(args.output_dir, 'Chembl20_MolBERT_features.pkl'))
 
     # Print statistics
     filtered_smiles = len(smiles_list) - sum(masks_all)

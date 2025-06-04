@@ -117,7 +117,14 @@ def filter_invivo_compounds(invitro_df: pd.DataFrame, invivo_path: str, invivo_s
     print("\nFiltering out invivo compounds from invitro data...")
     
     # Load and process invivo SMILES
-    invivo_smiles = pd.read_excel(invivo_path)
+    file_path = Path(invivo_path)
+    if file_path.suffix.lower() == '.xlsx':
+        invivo_smiles = pd.read_excel(invivo_path)
+    elif file_path.suffix.lower() == '.csv':
+        invivo_smiles = pd.read_csv(invivo_path)
+    else:
+        raise ValueError(f"Unsupported file format: {file_path.suffix}. Supported formats are: .xlsx, .csv")
+    
     if invivo_smiles_column not in invivo_smiles.columns:
         raise ValueError(f"Invivo SMILES column '{invivo_smiles_column}' not found in data. Available columns: {list(invivo_smiles.columns)}")
     
@@ -243,7 +250,7 @@ def main():
     
     # Rename SMILES column to standard name for processing
     invitro_data = invitro_data.rename(columns={args.invitro_smiles_column: 'smiles'})
-    
+    invitro_data = invitro_data.head(1000)
     # Normalize SMILES
     print(f"Original unique SMILES: {invitro_data.smiles.nunique()}")
     normalized_smiles_list = normalize_smiles_parallel(invitro_data.smiles.tolist())
