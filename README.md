@@ -76,7 +76,7 @@ This step is performed to
 sbatch scripts/preprocess_invitro_data.sh \
     /path/to/data \
     /path/to/conda/env \
-    /path/to/pretrained/weights
+    /path/to/pretrained/MolBERT/weights
 
 # Or run individual scripts:
 
