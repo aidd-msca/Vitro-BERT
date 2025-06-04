@@ -72,9 +72,12 @@ This step is performed to
 
 ```bash
 python scripts/preprocess_invitro_data.py \
-    --input_path /path/to/input/chembl20.parquet \
-    --output_path /path/to/output/ToxBERT_github/data/pretraining_data/chembl20_selected_assays_with_normalzied_smiles.parquet \
-    --smiles_column smiles \
+    --invitro_input_path /path/to/input/chembl20.parquet \
+    --invivo_input_path /path/to/input/rawdata/Animal_GAN_TGGATES_SMILES.xlsx \
+    --output_path /path/to/output/ToxBERT_github/data/pretraining_data/ \
+    --invitro_smiles_column smiles \
+    --invivo_smiles_column SMILES \
+    --min_pos_neg_per_assay 10 \
     --save_plots \
     --plot_path /path/to/output/my_distribution_plots.png
 ```

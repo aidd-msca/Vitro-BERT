@@ -11,20 +11,20 @@ import matplotlib.pyplot as plt
 import argparse
 from src.datasets.data_utils import normalize_smiles_parallel
 
-def filter_assays(df: pd.DataFrame, min_samples: int = 10) -> pd.DataFrame:
+def filter_assays(df: pd.DataFrame, min_pos_neg_per_assay: int = 10) -> pd.DataFrame:
     """
     Filter assays based on minimum number of positive and negative samples.
     
     Args:
         df (pd.DataFrame): Input DataFrame with assays
-        min_samples (int): Minimum number of positive/negative samples required
+        min_pos_neg_per_assay (int): Minimum number of positive/negative samples required per assay
         
     Returns:
         pd.DataFrame: Filtered DataFrame
     """
     pos_counts = (df.iloc[:, 1:] == 1).sum(axis=0)
     neg_counts = (df.iloc[:, 1:] == 0).sum(axis=0)
-    valid_assays = (pos_counts >= min_samples) & (neg_counts >= min_samples)
+    valid_assays = (pos_counts >= min_pos_neg_per_assay) & (neg_counts >= min_pos_neg_per_assay)
     selected_columns = ['smiles', 'Normalized_SMILES'] + valid_assays[valid_assays].index.tolist()
     return df[selected_columns]
 
@@ -102,6 +102,43 @@ def read_data_file(file_path: str, csv_sep: str = ',') -> pd.DataFrame:
     print(f"Successfully loaded data with shape: {df.shape}")
     return df
 
+def filter_invivo_compounds(invitro_df: pd.DataFrame, invivo_path: str, invivo_smiles_column: str) -> pd.DataFrame:
+    """
+    Filter out compounds that are present in invivo dataset from invitro data.
+    
+    Args:
+        invitro_df (pd.DataFrame): Invitro DataFrame with Normalized_SMILES
+        invivo_path (str): Path to invivo SMILES file
+        invivo_smiles_column (str): Name of the column containing SMILES strings in invivo data
+        
+    Returns:
+        pd.DataFrame: Filtered DataFrame with invivo compounds removed
+    """
+    print("\nFiltering out invivo compounds from invitro data...")
+    
+    # Load and process invivo SMILES
+    invivo_smiles = pd.read_excel(invivo_path)
+    if invivo_smiles_column not in invivo_smiles.columns:
+        raise ValueError(f"Invivo SMILES column '{invivo_smiles_column}' not found in data. Available columns: {list(invivo_smiles.columns)}")
+    
+    print(f"Invivo unique SMILES: {invivo_smiles[invivo_smiles_column].nunique()}")
+    
+    # Normalize invivo SMILES
+    normalized_smiles_list = normalize_smiles_parallel(invivo_smiles[invivo_smiles_column].tolist())
+    invivo_smiles['Normalized_SMILES'] = normalized_smiles_list
+    invivo_compounds = invivo_smiles.Normalized_SMILES.unique().tolist()
+    
+    # Filter out invivo compounds
+    filtered_data = invitro_df[~invitro_df['Normalized_SMILES'].isin(invivo_compounds)]
+    
+    # Print statistics
+    print(f"Original invitro dataset size: {len(invitro_df)}")
+    print(f"Number of invivo SMILES to remove: {len(invivo_compounds)}")
+    print(f"Filtered invitro dataset size: {len(filtered_data)}")
+    print(f"Number of rows removed: {len(invitro_df) - len(filtered_data)}")
+    
+    return filtered_data
+
 def parse_arguments():
     """
     Parse command line arguments.
@@ -109,13 +146,20 @@ def parse_arguments():
     Returns:
         argparse.Namespace: Parsed command line arguments
     """
-    parser = argparse.ArgumentParser(description='Process ChEMBL20 data for ToxBERT pretraining')
+    parser = argparse.ArgumentParser(description='Process invitro data for ToxBERT pretraining')
     
     parser.add_argument(
-        '--input_path',
+        '--invitro_input_path',
         type=str,
         required=True,
-        help='Path to input file (supported formats: .parquet, .csv, .tar.gz)'
+        help='Path to invitro input file (supported formats: .parquet, .csv, .tar.gz)'
+    )
+    
+    parser.add_argument(
+        '--invivo_input_path',
+        type=str,
+        required=True,
+        help='Path to invivo input file (supported formats: .xlsx)'
     )
     
     parser.add_argument(
@@ -133,10 +177,10 @@ def parse_arguments():
     )
     
     parser.add_argument(
-        '--min_samples',
+        '--min_pos_neg_per_assay',
         type=int,
         default=10,
-        help='Minimum number of positive/negative samples required for assays (default: 10)'
+        help='Minimum number of positive/negative samples required per assay (default: 10)'
     )
     
     parser.add_argument(
@@ -159,10 +203,24 @@ def parse_arguments():
         help='Path to save the distribution plots (default: same directory as output file)'
     )
     
+    parser.add_argument(
+        '--invivo_smiles_column',
+        type=str,
+        default='SMILES',
+        help='Name of the column containing SMILES strings in invivo data (default: SMILES)'
+    )
+    
+    parser.add_argument(
+        '--invitro_smiles_column',
+        type=str,
+        default='smiles',
+        help='Name of the column containing SMILES strings in invitro data (default: smiles)'
+    )
+    
     return parser.parse_args()
 
 def main():
-    """Main function to process ChEMBL20 data."""
+    """Main function to process invitro data."""
     # Parse command line arguments
     args = parse_arguments()
     
@@ -170,41 +228,47 @@ def main():
     output_dir = Path(args.output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load data
-    print(f"Loading data from {args.input_path}")
+    # Load invitro data
+    print(f"Loading invitro data from {args.invitro_input_path}")
     try:
-        chembl20 = read_data_file(args.input_path, csv_sep=args.csv_sep)
+        invitro_data = read_data_file(args.invitro_input_path, csv_sep=args.csv_sep)
     except Exception as e:
-        print(f"Error loading data: {str(e)}")
+        print(f"Error loading invitro data: {str(e)}")
         return
     
     # Ensure required columns exist
-    if args.smiles_column not in chembl20.columns:
-        print(f"Error: SMILES column '{args.smiles_column}' not found in data. Available columns: {list(chembl20.columns)}")
+    if args.invitro_smiles_column not in invitro_data.columns:
+        print(f"Error: Invitro SMILES column '{args.invitro_smiles_column}' not found in data. Available columns: {list(invitro_data.columns)}")
         return
     
     # Rename SMILES column to standard name for processing
-    chembl20 = chembl20.rename(columns={args.smiles_column: 'smiles'})
-    chembl20 = chembl20.head(100)
+    invitro_data = invitro_data.rename(columns={args.invitro_smiles_column: 'smiles'})
     
     # Normalize SMILES
-    print(f"Original unique SMILES: {chembl20.smiles.nunique()}")
-    normalized_smiles_list = normalize_smiles_parallel(chembl20.smiles.tolist())
-    chembl20['Normalized_SMILES'] = normalized_smiles_list
-    print(f"Normalized unique SMILES: {chembl20.Normalized_SMILES.nunique()}")
+    print(f"Original unique SMILES: {invitro_data.smiles.nunique()}")
+    normalized_smiles_list = normalize_smiles_parallel(invitro_data.smiles.tolist())
+    invitro_data['Normalized_SMILES'] = normalized_smiles_list
+    print(f"Normalized unique SMILES: {invitro_data.Normalized_SMILES.nunique()}")
     
     # Remove duplicates
-    chembl20 = chembl20.drop_duplicates(subset=["Normalized_SMILES"]).reset_index(drop=True)
+    invitro_data = invitro_data.drop_duplicates(subset=["Normalized_SMILES"]).reset_index(drop=True)
+    
+    # Filter out invivo compounds
+    before_filtering = invitro_data.Normalized_SMILES.nunique()
+    invitro_data = filter_invivo_compounds(invitro_data, args.invivo_input_path, args.invivo_smiles_column)
+    after_filtering = invitro_data.Normalized_SMILES.nunique()
+    print(f"Number of invivo compounds removed: {before_filtering - after_filtering}")
+
     
     # Filter assays and create visualizations
-    filtered_df = filter_assays(chembl20, min_samples=args.min_samples)
-    pos_counts_assays = (chembl20.iloc[:, 1:] == 1).sum(axis=0)
-    neg_counts_assays = (chembl20.iloc[:, 1:] == 0).sum(axis=0)
-    valid_assays = (pos_counts_assays >= args.min_samples) & (neg_counts_assays >= args.min_samples)
+    filtered_df = filter_assays(invitro_data, min_pos_neg_per_assay=args.min_pos_neg_per_assay)
+    pos_counts_assays = (invitro_data.iloc[:, 1:] == 1).sum(axis=0)
+    neg_counts_assays = (invitro_data.iloc[:, 1:] == 0).sum(axis=0)
+    valid_assays = (pos_counts_assays >= args.min_pos_neg_per_assay) & (neg_counts_assays >= args.min_pos_neg_per_assay)
     
     # Print statistics
-    print(f"Original number of assays: {chembl20.shape[1]-2}")
-    print(f"Number of assays with ≥{args.min_samples} pos and neg: {len(filtered_df.columns)-2}")
+    print(f"Original number of assays: {invitro_data.shape[1]-2}")
+    print(f"Number of assays with ≥{args.min_pos_neg_per_assay} pos and neg: {len(filtered_df.columns)-2}")
     print(f"Shape of filtered dataset: {filtered_df.shape}")
     
     # Create and optionally save visualizations
