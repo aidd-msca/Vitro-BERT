@@ -152,17 +152,6 @@ sbatch scripts/BERT_invitro_ADME_pretraining.sh \
     /molbert_100epochs
 ```
 
-## Pretraining by using public data
-```bash
-# Pretraining data can be downloaded from:
-https://figshare.com/articles/dataset/Pretraining_data/28334303
-```
-
-## Downstream data and VitroBERT Embeddings
-```bash
-https://figshare.com/articles/dataset/VitroBERT_-_Pretraining_and_downstream_data/28692518
-```
-
 ## Citation
 
 If you use this code in your research, please cite:
