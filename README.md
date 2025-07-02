@@ -101,6 +101,10 @@ python scripts/split_data.py \
     --output_dir /path/to/output/pretraining_data \
     --split_type Random \
     --test_size 0.05
+
+# Alternative split types available:
+# --split_type Stratified  # Maintains label distribution across splits
+# --split_type Scaffold    # Groups molecules by Murcko scaffolds (recommended for chemical data)
 ```
 
 The pipeline will generate the following files:
@@ -205,11 +209,3 @@ If you use this code in your research, please cite:
     year={2025}
 }
 ```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-Muhammad Arslan Masood - arslan.asood@aalto.fi

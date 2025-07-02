@@ -7,15 +7,17 @@
 #SBATCH --output=/scratch/work/masooda1/ToxBERT/output/split_data.out
 
 # Check if all arguments are provided
-if [ $# -ne 3 ]; then
-    echo "Usage: $0 <base_folder> <venv_path> <pretrained_MolBERT_weights>"
-    echo "Example: sbatch $0 /scratch/work/masooda1/ToxBERT_github/data /scratch/work/masooda1/.conda_envs/ToxBERT /scratch/work/masooda1/ToxBERT/MolBERT_checkpoints/molbert_100epochs/checkpoints/last.ckpt"
+if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+    echo "Usage: $0 <base_folder> <venv_path> <pretrained_MolBERT_weights> [split_type]"
+    echo "Example: sbatch $0 /scratch/work/masooda1/ToxBERT_github/data /scratch/work/masooda1/.conda_envs/ToxBERT /scratch/work/masooda1/ToxBERT/MolBERT_checkpoints/molbert_100epochs/checkpoints/last.ckpt Scaffold"
+    echo "split_type options: Random (default), Stratified, Scaffold"
     exit 1
 fi
 
 BASE_FOLDER="$1"
 VENV_PATH="$2"
 PRETRAINED_WEIGHTS="$3"
+SPLIT_TYPE="${4:-Random}"  # Default to Random if not provided
 
 # Get the project root directory (parent of base_folder)
 PROJECT_ROOT="${BASE_FOLDER%/*}"
@@ -79,7 +81,7 @@ echo 'Running training script...'
 srun python "${PROJECT_ROOT}/scripts/split_data.py" \
     --input_path "${BASE_FOLDER}/pretraining_data/Chembl20_filtered_for_MolBERT.pkl" \
     --output_dir "${BASE_FOLDER}/pretraining_data" \
-    --split_type "Random" \
+    --split_type "${SPLIT_TYPE}" \
     --test_size 0.05
 
 if [ $? -ne 0 ]; then
