@@ -37,7 +37,7 @@ setup(
         'scipy==1.3.1',
         'transformers==3.5.1',
         'torch==1.4.0',
-        'pubchempy',
+        'pubchempy==1.0.4',
         'openpyxl',
         'wandb',
         'pyarrow',
