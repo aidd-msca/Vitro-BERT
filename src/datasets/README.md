@@ -75,7 +75,6 @@ src/datasets/
 │   │   ├── Animal_GAN_TGGATES_SMILES.xlsx          # SMILES data
 │   │   ├── Animal_GAN_TGGATES_splits.xlsx          # Dataset splits
 │   │   └── TG_GATES_SMILES.csv                     # Extracted SMILES
-│   ├── binary_data/
 │   └── downstream_data/
 │       ├── histopathology_binary_data.csv          # Histopathology binary labels
 │       ├── TG_train_Split_RandomPick.csv           # Training sets
