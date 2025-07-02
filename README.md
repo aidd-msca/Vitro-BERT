@@ -1,9 +1,9 @@
-# ToxBERT - Modeling DILI by pretraining BERT on invitro data
+# VitroBERT - Modeling DILI by pretraining BERT on invitro data
 
-This repository contains the code of ToxBERT, a pretrained BERT based model with the ability to use biological and chemical data during pretraining stage
+This repository contains the code of VitroBERT, a pretrained BERT based model with the ability to use biological and chemical data during pretraining stage
 
 <p align="center">
-  <img src="ToxBERT.png" width="50%" alt="ToxBERT Architecture"/>
+  <img src="ToxBERT.png" width="50%" alt="VitroBERT Architecture"/>
 </p>
 
 ## Table of Contents
@@ -20,19 +20,19 @@ This repository contains the code of ToxBERT, a pretrained BERT based model with
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/aidd-msca/ToxBERT.git
-cd ToxBERT
+git clone https://github.com/aidd-msca/VitroBERT.git
+cd VitroBERT
 ```
 
 2. Create and activate a conda environment:
 ```bash
-conda create -y -q -n ToxBERT -c rdkit rdkit=2019.03.1.0 python=3.7.3
-conda activate ToxBERT
+conda create -y -q -n VitroBERT -c rdkit rdkit=2019.03.1.0 python=3.7.3
+conda activate VitroBERT
 ```
 if Aalto University (triton):
 ```bash
 module load mamba # specific to Aalto University (triton)
-source activate ToxBERT
+source activate VitroBERT
 ```
 
 3. Install dependencies:
@@ -50,7 +50,7 @@ The model requires two types of data:
 2. Fine-tuning data: Preclinical and Clinical data with binary labels
 
 ### Public data
-Download downstream and pretrianing data from [here](https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518) and place in the `data/` directory
+Download downstream and pretrianing data from [here](https://figshare.com/articles/dataset/VitroBERT_-_Pretraining_and_downstream_data/28692518) and place in the `data/` directory
 
 
 ### Data Format
@@ -143,7 +143,7 @@ Architecture details:
 
 ## Training the Model
 
-Use the following script to pretrain ToxBERT by using invitro data
+Use the following script to pretrain VitroBERT by using invitro data
 ```bash
 sbatch scripts/BERT_invitro_ADME_pretraining.sh \
     /path/to/invitro_data \
@@ -152,23 +152,12 @@ sbatch scripts/BERT_invitro_ADME_pretraining.sh \
     /molbert_100epochs
 ```
 
-## Pretraining by using public data
-```bash
-# Pretraining data can be downloaded from:
-https://figshare.com/articles/dataset/Pretraining_data/28334303
-```
-
-## Downstream data and ToxBERT Embeddings
-```bash
-https://figshare.com/articles/dataset/ToxBERT_-_Pretraining_and_downstream_data/28692518
-```
-
 ## Citation
 
 If you use this code in your research, please cite:
 ```bibtex
-@article{ToxBERT,
-    title={ToxBERT - Modeling DILI by pretraining BERT on invitro data},
+@article{VitroBERT,
+    title={VitroBERT - Modeling DILI by pretraining BERT on invitro data},
     author={Muhammad Arslan Masood, Samuel Kaski, Anamya Ajjolli Nagaraja, Katia Belaid, Natalie Mesens, Hugo Ceulemans, Dorota Herman, Markus Heinonen},
     journal={under review},
     year={2025}
