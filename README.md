@@ -52,9 +52,6 @@ The model requires two types of data:
 ### Public data
 Download downstream and pretrianing data from [here](https://figshare.com/articles/dataset/VitroBERT_-_Pretraining_and_downstream_data/28692518) and place in the `data/` directory
 
-### Downstream Data Preprocessing
-For detailed instructions on preprocessing downstream data (TG-GATES histopathology and biochemistry data), see the comprehensive guide in [`src/datasets/README.md`](src/datasets/README.md).
-
 ### Data Format
 The input data should be with the following structure:
 ```python
@@ -127,6 +124,9 @@ data/
     ├── invitro_pos_weight_distribution.csv
 └── downstream_data
 ```
+
+### Downstream Data Preprocessing
+For detailed instructions on preprocessing downstream data (TG-GATES histopathology and biochemistry data), see the comprehensive guide in [`src/datasets/README.md`](src/datasets/README.md).
 
 ## Model Architecture
 
