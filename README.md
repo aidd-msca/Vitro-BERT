@@ -154,6 +154,46 @@ sbatch scripts/BERT_invitro_ADME_pretraining.sh \
     /molbert_100epochs
 ```
 
+## Downstream Task Training
+
+After pretraining, train MLP heads for downstream tasks (TG-GATES data) using the pretrained BERT features.
+
+### 1. Hyperparameter Search
+First, perform hyperparameter search using cross-validation to find optimal parameters:
+
+```bash
+sbatch scripts/MLP_with_BERT_hp_search.sh
+```
+
+This script runs a comprehensive hyperparameter search across:
+- Alpha values: [0.0, 0.25, 0.5, 0.75, 1.0] (focal loss parameter)
+- Gamma values: [1.0, 2.0, 3.0] (focal loss parameter)
+- L2 regularization: [0.01, 0.05, 0.1, 0.25, 0.5, 1.0]
+- Dropout rates: [0.5]
+- All split types: Structure, ATC, Time, RandomPick
+- Different pretrained epochs: init, 0, 4, 9
+
+### 2. Final MLP Model Training
+After hyperparameter search, train the final models using the best parameters:
+
+```bash
+sbatch scripts/MLP_with_BERT_best_model.sh
+```
+
+This script:
+- Finds the best hyperparameters from the search results
+- Trains final models with multiple random seeds (0-4)
+- Evaluates on test sets for each split type and pretrained epoch
+- Saves comprehensive results including metrics for all seeds
+
+### Generated Results
+The downstream training generates:
+- Hyperparameter search results: `hp_search_{split_type}_epoch_{epoch}/hp_*.json`
+- Final model results: `best_model_results_{split_type}_pretrained_epoch_{epoch}.json`
+- Model checkpoints and training logs via Weights & Biases
+
+## Reproducing Results
+
 ## Citation
 
 If you use this code in your research, please cite:
