@@ -120,6 +120,11 @@ python src/datasets/Extract_SMILES_from_PubChem.py \
     --input data/rawdata/tx2c00378_si_001.xlsx \
     --output data/rawdata/TG_GATES_SMILES.csv
 
+# 2. Process Histopathological data
+python src/datasets/generate_histopathology_binary_labels.py \
+    --input "data/rawdata/" \
+    --output "data/downstream_data/histopathology_binary_data.csv"
+
 # 2. Process blood markers with all splits
 python src/datasets/generate_blood_markers_binary_labels.py \
     --smiles-file data/rawdata/Animal_GAN_TGGATES_SMILES.xlsx \
