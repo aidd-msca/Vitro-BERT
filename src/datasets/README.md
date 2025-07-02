@@ -28,7 +28,7 @@ Process histopathology data to create binary toxicity labels:
 ```bash
 python src/datasets/generate_histopathology_binary_labels.py \
     --input "data/rawdata/" \
-    --output "data/binary_data/histopathology_binary_data.csv"
+    --output "data/downstream_data/histopathology_binary_data.csv"
 ```
 
 ### 4. Generate Binary Labels for Blood Markers
@@ -76,8 +76,8 @@ src/datasets/
 │   │   ├── Animal_GAN_TGGATES_splits.xlsx          # Dataset splits
 │   │   └── TG_GATES_SMILES.csv                     # Extracted SMILES
 │   ├── binary_data/
-│   │   └── histopathology_binary_data.csv          # Histopathology binary labels
 │   └── downstream_data/
+│       ├── histopathology_binary_data.csv          # Histopathology binary labels
 │       ├── TG_train_Split_RandomPick.csv           # Training sets
 │       ├── TG_test_Split_RandomPick.csv            # Test sets
 │       ├── TG_train_Split_Structure.csv            # (for each split type)
@@ -102,7 +102,7 @@ src/datasets/
 - Creates compound-level binary matrices
 
 ### generate_blood_markers_binary_labels.py
-- **New organized script** with complete pipeline:
+- Complete pipeline with:
   - SMILES normalization using RDKit
   - Optional MolBERT filtering for SMILES validation
   - Biochemistry data processing with toxicity thresholds
